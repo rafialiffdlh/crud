@@ -1,0 +1,28 @@
+{
+    "brands": [
+        {
+        "id": 1,
+        "name": "nike"
+        },
+        {
+        "id": 2,
+        "name": "adidas"
+        }
+    ],
+    "products": [
+        {
+        "id":1,
+        "name": "product nike",
+        "description": "ini description product nike",
+        "price": 5000,
+        "brand_id": 1
+        },
+        {
+        "id":2,
+        "name": "product adidas",
+        "description": "ini description product adidas",
+        "price": 5000,
+        "brand_id": 2
+        }
+    ]
+}
