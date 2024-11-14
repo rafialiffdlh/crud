@@ -2,18 +2,18 @@ import { Request } from 'express';
 import prisma from '@/prisma';
 import { ErrorHandler } from '@/helpers/response.helper';
 export class ProductService {
-    static async getByIdService(req: Request) {
-        const { id } = req.params;
-        const data = await prisma.products.findUnique({
-          where: { id: Number(id) },
-          include: { brand: true },
-        });  
-        if (!data) {
-          throw new ErrorHandler(404);
-        }  
-        return data;
-      }
-      
+  static async getByIdService(req: Request) {
+    const { id } = req.params;
+    const data = await prisma.products.findUnique({
+      where: { id: Number(id) },
+      include: { brand: true },
+    });
+    if (!data) {
+      throw new ErrorHandler(404);
+    }
+    return data;
+  }
+
   static async createProduct(req: Request) {
     const { brand_Id, name, description, price } = req.body;
     if (!brand_Id || !name || !price) {
