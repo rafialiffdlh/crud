@@ -5,6 +5,8 @@ export const NODE_ENV = process.env.NODE_ENV || 'development';
 
 const envFile = NODE_ENV === 'development' ? '.env.development' : '.env';
 
+config({ path: resolve(__dirname, `../${envFile}`) });
+config({ path: resolve(__dirname, `../${envFile}.local`), override: true });
 
 // Load all environment variables from .env file
 

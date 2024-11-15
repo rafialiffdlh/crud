@@ -1,6 +1,7 @@
 import React from 'react';
 import { PrismaClient } from '@prisma/client';
 import AddProduct from './addProduct';
+import DeleteProduct from './deleteProduct';
 import {
   Table,
   TableHeader,
@@ -59,6 +60,9 @@ export default async function FormProduct() {
               <TableCell>{product.description}</TableCell>
               <TableCell>{product.price}</TableCell>
               <TableCell>{product.brand.name}</TableCell>
+              <TableCell>
+                <DeleteProduct id={product.id} name={product.name} />
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
