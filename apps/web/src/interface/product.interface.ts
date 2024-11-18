@@ -3,7 +3,7 @@ export interface IProducts {
   name: string;
   description: string;
   price: number;
-  brands?: IBrands;
+  brand: IBrands;
 }
 
 export interface IBrands {

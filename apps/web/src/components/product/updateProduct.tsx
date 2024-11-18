@@ -1,133 +1,143 @@
 'use client';
-
-import * as React from 'react';
+import { useState, SyntheticEvent } from 'react';
+import { useRouter } from 'next/navigation';
+import { api } from '@/config/axios.config';
+import { Pencil } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
-  DialogFooter,
   DialogTitle,
-  DialogDescription,
-  DialogClose,
+  DialogFooter,
 } from '@/components/ui/dialog';
-import { useState } from 'react';
-import { X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { IBrands, IProducts } from '@/interface/product.interface';
 
-export default function UpdateProductDialog() {
-  const [open, setOpen] = useState(false);
-  const [product, setProduct] = useState({
-    name: '',
-    description: '',
-    price: 0,
-    brand_Id: 0,
-  });
+const UpdateProduct = ({
+  product,
+  brands,
+}: {
+  product: IProducts;
+  brands: IBrands[];
+}) => {
+  const [name, setName] = useState<string>(product.name);
+  const [description, setDescription] = useState<string>(product.description);
+  const [price, setPrice] = useState<number>(product.price);
+  const [brand_Id, setBrandId] = useState<number>(product.brand.id);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const router = useRouter();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setProduct((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleUpdate = async (e: SyntheticEvent) => {
     e.preventDefault();
-    // Replace this with your API call to update the product
-    console.log('Product updated:', product);
-    setOpen(false);
+    setIsLoading(true);
+    try {
+      await api.put(`/product/${product.id}`, {
+        name,
+        description,
+        price,
+        brand_Id,
+      });
+      router.refresh();
+      setIsOpen(false);
+    } catch (error: unknown) {
+      console.error('Error updating product:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <button className="btn-primary">Update Product</button>
-        </DialogTrigger>
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={() => setIsOpen(true)}
+        className="h-8 w-8"
+      >
+        <Pencil className="h-4 w-4" />
+      </Button>
 
-        <DialogContent>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Update Product</DialogTitle>
-            <DialogDescription>
-              Modify the details of the product.
-            </DialogDescription>
+            <DialogTitle>Update {product.name}</DialogTitle>
           </DialogHeader>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium">
-                Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                value={product.name}
-                onChange={handleChange}
-                className="input"
-                required
-              />
+          <form onSubmit={handleUpdate} className="space-y-4">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Product Name</Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Product Name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Input
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Description"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="price">Price</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  value={price}
+                  onChange={(e) => setPrice(Number(e.target.value))}
+                  placeholder="Price"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="brand">Brand</Label>
+                <Select
+                  value={brand_Id.toString()}
+                  onValueChange={(value) => setBrandId(Number(value))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select brand" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {brands.map((brand) => (
+                      <SelectItem key={brand.id} value={brand.id.toString()}>
+                        {brand.name ?? 'Unnamed Brand'}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-
-            <div>
-              <label
-                htmlFor="description"
-                className="block text-sm font-medium"
-              >
-                Description
-              </label>
-              <input
-                id="description"
-                name="description"
-                type="text"
-                value={product.description}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="price" className="block text-sm font-medium">
-                Price
-              </label>
-              <input
-                id="price"
-                name="price"
-                type="number"
-                value={product.price}
-                onChange={handleChange}
-                className="input"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="brand_Id" className="block text-sm font-medium">
-                Brand ID
-              </label>
-              <input
-                id="brand_Id"
-                name="brand_Id"
-                type="number"
-                value={product.brand_Id}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
-
             <DialogFooter>
-              <DialogClose asChild>
-                <button type="button" className="btn-secondary">
-                  Cancel
-                </button>
-              </DialogClose>
-              <button type="submit" className="btn-primary">
-                Save Changes
-              </button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? 'Updating...' : 'Update'}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
     </div>
   );
-}
+};
+
+export default UpdateProduct;

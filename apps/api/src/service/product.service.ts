@@ -6,7 +6,14 @@ export class ProductService {
     const { id } = req.params;
     const data = await prisma.products.findUnique({
       where: { id: Number(id) },
-      include: { brand: true },
+      select: {
+        brand: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
     if (!data) {
       throw new ErrorHandler(404);

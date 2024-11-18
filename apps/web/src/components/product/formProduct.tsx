@@ -2,6 +2,7 @@ import React from 'react';
 import { PrismaClient } from '@prisma/client';
 import AddProduct from './addProduct';
 import DeleteProduct from './deleteProduct';
+import UpdateProduct from './updateProduct';
 import {
   Table,
   TableHeader,
@@ -11,10 +12,11 @@ import {
   TableCell,
   TableCaption,
 } from '@/components/ui/table';
-import { IBrands } from '@/interface/product.interface';
+import { IBrands, IProducts } from '@/interface/product.interface';
+
 const prisma = new PrismaClient();
 
-const getProduts = async () => {
+const getProducts = async () => {
   const res = await prisma.products.findMany({
     select: {
       id: true,
@@ -24,7 +26,11 @@ const getProduts = async () => {
       brand: { select: { id: true, name: true } },
     },
   });
-  return res;
+  return res.map((product) => ({
+    ...product,
+    name: product.name ?? '',
+    description: product.description ?? '',
+  }));
 };
 const getBrands = async () => {
   const res = await prisma.brands.findMany({
@@ -36,7 +42,7 @@ const getBrands = async () => {
   return res;
 };
 export default async function FormProduct() {
-  const [products, brands] = await Promise.all([getProduts(), getBrands()]);
+  const [products, brands] = await Promise.all([getProducts(), getBrands()]);
   return (
     <div className="p-4">
       <AddProduct brands={brands} />
@@ -60,6 +66,9 @@ export default async function FormProduct() {
               <TableCell>{product.description}</TableCell>
               <TableCell>{product.price}</TableCell>
               <TableCell>{product.brand.name}</TableCell>
+              <TableCell>
+                <UpdateProduct product={product} brands={brands} />
+              </TableCell>
               <TableCell>
                 <DeleteProduct id={product.id} name={product.name} />
               </TableCell>
